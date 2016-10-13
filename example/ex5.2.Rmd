@@ -1,0 +1,55 @@
+---
+title: "ex5.2"
+author: "ram"
+date: "2016년 10월 13일"
+output: html_document
+---
+
+
+```{r}
+mcsampling<-function(v0,k0,N){
+  
+  mean_ya<-75.2
+  var_ya<-7.3^2
+  mean_yb<-y<-77.5
+  var_yb<-8.1^2
+  mu0=75;sigma02=100;
+  n=16;
+  vn=v0+n;
+  kn=k0+n;
+  
+  mu.ya.n=(k0*mu0+n*mean_ya)/kn;
+  mu.yb.n=(k0*mu0+n*mean_yb)/kn;
+  sigman2.ya=(v0*sigma02+(n-1)*var_ya+(k0*n/kn)*(mean_ya-mu0)^2)*(1/vn)
+  sigman2.yb=(v0*sigma02+(n-1)*var_yb+(k0*n/kn)*(mean_yb-mu0)^2)*(1/vn)
+  
+  precision.ya.sample<-rgamma(N,vn/2,(vn/2)*sigman2.ya)
+  precision.yb.sample<-rgamma(N,vn/2,(vn/2)*sigman2.yb)
+  theta.ya.sample<-rnorm(N,mu.ya.n,sqrt((1/precision.ya.sample)*(1/kn)))
+  theta.yb.sample<-rnorm(N,mu.yb.n,sqrt((1/precision.yb.sample)*(1/kn)))
+  mean(theta.ya.sample<theta.yb.sample)
+  
+  
+}
+
+mcsampling(1,1,100)
+mcsampling(2,2,100)
+mcsampling(4,4,100)
+mcsampling(8,8,100)
+mcsampling(16,16,100)
+mcsampling(32,32,100)
+v0=k0=seq(1,1000/10,1)
+
+a<-NULL
+for(i in 1:length(v0)){
+  a[i]<-mcsampling(v0[i],k0[i],100)
+}
+
+plot(a,ylim=c(0.5,0.9),xlim=c(0,100))
+par(new=TRUE)
+smooth<-loess(a~v0)
+plot(predict(smooth),type="l",col="red",ylim=c(0.5,0.9),xlim=c(0,100))
+
+```
+
+$v_{0}=k_{0}$ 값이 커질수록 $theta_{A}$< $theta_{B}$ 의확률이 점점 작아 지는 증거로서 이 플랏을 사용할 수 있다.
